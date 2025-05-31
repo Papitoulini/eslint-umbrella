@@ -1,8 +1,5 @@
-# .github/workflows/publish.yml
-
 name: Publish to npm
 
-# Trigger when the “CI” workflow completes successfully on the maestro branch
 on:
   workflow_run:
     workflows:
@@ -20,8 +17,6 @@ jobs:
       - name: ⬇️ Checkout repository
         uses: actions/checkout@v3
         with:
-          # By default, actions/checkout checks out only the single commit that triggered the workflow.
-          # For publishing, we want the full history (so that git tags and version increments work).
           fetch-depth: 0
 
       - name: ⎔ Setup Node.js
@@ -29,7 +24,7 @@ jobs:
         with:
           node-version: '18'
           registry-url: 'https://registry.npmjs.org'
-
+          
       - name: 📥 Install dependencies
         run: npm ci
 
@@ -42,10 +37,13 @@ jobs:
         run: |
           npm version patch -m "chore(release): %s"
 
+      - name: 🗝 Authenticate to npm
+        run: |
+          # Tell npm to use the token for all requests to the npm registry:
+          npm config set //registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}
+
       - name: 🚀 Publish package
         run: npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: 📤 Push tags to GitHub
         run: git push origin --follow-tags
