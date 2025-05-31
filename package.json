@@ -1,5 +1,5 @@
 {
-  "name": "eslint-umbrella",
+  "name": "@papitoulini/eslint-umbrella",
   "version": "0.1.0",
   "description": "A highly configurable “umbrella” ESLint base (Node, React, Next)",
   "type": "module",
