@@ -22,7 +22,7 @@ jobs:
       - name: ⎔ Setup Node.js (public npm)
         uses: actions/setup-node@v4
         with:
-          node-version: "18"
+          node-version: "22"
           registry-url: "https://registry.npmjs.org"
           always-auth: true
 
