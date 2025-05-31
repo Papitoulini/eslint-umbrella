@@ -1,3 +1,5 @@
+# .github/workflows/publish.yml
+
 name: Publish
 
 on:
@@ -8,28 +10,29 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     permissions:
-      contents: read       # to check out code
-      packages: write      # to publish to npm
-      id-token: write      # (if you need OIDC, can remove otherwise)
+      contents: read
+      packages: write
 
     steps:
-      - name: ⬇️ Checkout repository at tag
+      - name: ⬇️ Checkout repository
         uses: actions/checkout@v4
         with:
-          # fetch-depth: 0 ensures we get the full history, but you can also fetch the specific tag
           fetch-depth: 0
 
-      - name: ⎔ Setup Node.js (public npm)
+      - name: ⎔ Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "22"
+          node-version: "18"
           registry-url: "https://registry.npmjs.org"
-          always-auth: true
 
-      - name: 📥 Install dependencies
-        run: npm ci
+      - name: 🗝 Write NPM token to ~/.npmrc
+        run: |
+          echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
+
+      - name: 🔍 Verify npm authentication
+        run: |
+          npm whoami
+        # If this step fails (invalid token), the job stops here.
 
       - name: 🚀 Publish to npm
         run: npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
