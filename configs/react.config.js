@@ -3,73 +3,49 @@
 import path from "path";
 import { FlatCompat } from "@eslint/eslintrc";
 import createBaseConfig from "./base.config.js";
+import reactPlugin from "eslint-plugin-react";
+import jsxA11yPlugin from "eslint-plugin-jsx-a11y";
+import importPlugin from "eslint-plugin-import";
+import eslintCommentsPlugin from "eslint-plugin-eslint-comments";
+import prettierPlugin from "eslint-plugin-prettier";
+import { fileURLToPath } from "url";
 
-// Default options specifically for React config:
+const __filename = fileURLToPath(import.meta.url);
+const __dirname  = path.dirname(__filename);
+
 const reactDefaultOptions = {
-  // Forwarded to createBaseConfig
   baseOptions: {},
-
-  // Whether to include full Airbnb (React + import + JSX-a11y) on top of base
   enableAirbnbFull: true,
-
-  // Whether to include react/recommended and jsx-a11y/recommended
   enableReactRecommended: true,
   enableJsxA11yRecommended: true,
-
-  // Always keep Prettier on last
   enablePrettier: true,
-
-  // Any extra React-specific rule overrides
   extraRules: {
     "react/prop-types": "off",
     "react/react-in-jsx-scope": "off"
   }
 };
 
-/**
- * Factory: createReactConfig(customOptions)
- *
- * @param {Object} customOptions
- * @param {Object} [customOptions.baseOptions]             // forwarded to createBaseConfig
- * @param {boolean} [customOptions.enableAirbnbFull]
- * @param {boolean} [customOptions.enableReactRecommended]
- * @param {boolean} [customOptions.enableJsxA11yRecommended]
- * @param {boolean} [customOptions.enablePrettier]
- * @param {Object} [customOptions.extraRules]
- *
- * @returns {Array} Flat-config array for React projects
- */
 export default function createReactConfig(customOptions = {}) {
   const opts = {
     ...reactDefaultOptions,
     ...customOptions,
-    baseOptions: {
-      ...reactDefaultOptions.baseOptions,
-      ...(customOptions.baseOptions || {})
-    },
-    extraRules: {
-      ...reactDefaultOptions.extraRules,
-      ...(customOptions.extraRules || {})
-    }
+    baseOptions: { ...reactDefaultOptions.baseOptions, ...(customOptions.baseOptions || {}) },
+    extraRules: { ...reactDefaultOptions.extraRules, ...(customOptions.extraRules || {}) }
   };
 
-  // 1) Create the base configs first (TS + Google/Airbnb-base/Standard + Prettier etc.)
   const baseConfigArray = createBaseConfig(opts.baseOptions);
 
-  // 2) FlatCompat to wrap legacy “airbnb” + “plugin:react/recommended” + “plugin:jsx-a11y/recommended”
   const compat = new FlatCompat({
-    baseDirectory: path.resolve(new URL(import.meta.url).pathname, ".")
+    baseDirectory: __dirname,
+    recommendedConfig: { eslint: "recommended"  }
   });
 
-  // 3) Build a list of “extends” on top of base
   const extendsList = [];
   if (opts.enableAirbnbFull) extendsList.push("airbnb");
   if (opts.enableReactRecommended) extendsList.push("plugin:react/recommended");
-  if (opts.enableJsxA11yRecommended)
-    extendsList.push("plugin:jsx-a11y/recommended");
+  if (opts.enableJsxA11yRecommended) extendsList.push("plugin:jsx-a11y/recommended");
   if (opts.enablePrettier) extendsList.push("plugin:prettier/recommended");
 
-  // 4) React-specific section (applies to all .jsx/.tsx)
   const reactSection = {
     files: ["**/*.{jsx,tsx}"],
     env: {
@@ -85,35 +61,23 @@ export default function createReactConfig(customOptions = {}) {
         ecmaFeatures: { jsx: true }
       },
       plugins: {
-        react: require("eslint-plugin-react"),
-        "jsx-a11y": require("eslint-plugin-jsx-a11y"),
-        import: require("eslint-plugin-import"),
-        "eslint-comments": require("eslint-plugin-eslint-comments"),
-        ...(opts.enablePrettier ? { prettier: require("eslint-plugin-prettier") } : {})
+        react: reactPlugin,
+        "jsx-a11y": jsxA11yPlugin,
+        import: importPlugin,
+        "eslint-comments": eslintCommentsPlugin,
+        ...(opts.enablePrettier ? { prettier: prettierPlugin } : {})
       },
       settings: {
-        react: {
-          version: "detect"
-        },
-        "import/parsers": {
-          "@typescript-eslint/parser": [".ts", ".tsx"]
-        },
+        react: { version: "detect" },
+        "import/parsers": { "@typescript-eslint/parser": [".ts", ".tsx"] },
         "import/resolver": {
-          typescript: {
-            alwaysTryTypes: true
-          },
-          node: {
-            extensions: [".js", ".jsx", ".ts", ".tsx"],
-            paths: ["src"]
-          }
+          typescript: { alwaysTryTypes: true },
+          node: { extensions: [".js", ".jsx", ".ts", ".tsx"], paths: ["src"] }
         }
       }
     },
-    // 5) Extend the selected presets
     ...compat.extends(...extendsList),
-    // 6) React-specific rules + extraRules
     rules: {
-      // ==== React Plugin Rules ====
       "react/jsx-boolean-value": ["error", "never"],
       "react/jsx-curly-brace-presence": ["error", { props: "never", children: "never" }],
       "react/jsx-filename-extension": ["error", { extensions: [".jsx", ".tsx"] }],
@@ -238,7 +202,6 @@ export default function createReactConfig(customOptions = {}) {
       "react/style-prop-object": "error",
       "react/void-dom-elements-no-children": "error",
 
-      // ==== JSX-A11Y Plugin Rules ====
       "jsx-a11y/accessible-emoji": "warn",
       "jsx-a11y/alt-text": [
         "error",
@@ -248,12 +211,7 @@ export default function createReactConfig(customOptions = {}) {
         }
       ],
       "jsx-a11y/anchor-has-content": "error",
-      "jsx-a11y/anchor-is-valid": [
-        "error",
-        {
-          aspects: ["noHref", "preferButton"]
-        }
-      ],
+      "jsx-a11y/anchor-is-valid": ["error", { aspects: ["noHref", "preferButton"] }],
       "jsx-a11y/aria-activedescendant-has-tabindex": "warn",
       "jsx-a11y/aria-props": "error",
       "jsx-a11y/aria-proptypes": "error",
@@ -265,7 +223,18 @@ export default function createReactConfig(customOptions = {}) {
         "warn",
         {
           ignoreElements: ["audio", "canvas", "embed", "input", "textarea", "tr", "video"],
-          ignoreRoles: ["grid", "listbox", "menu", "menubar", "radiogroup", "row", "tablist", "toolbar", "tree", "treegrid"],
+          ignoreRoles: [
+            "grid",
+            "listbox",
+            "menu",
+            "menubar",
+            "radiogroup",
+            "row",
+            "tablist",
+            "toolbar",
+            "tree",
+            "treegrid"
+          ],
           includeRoles: ["alert", "dialog"]
         }
       ],
@@ -275,52 +244,50 @@ export default function createReactConfig(customOptions = {}) {
       "jsx-a11y/img-redundant-alt": "error",
       "jsx-a11y/interactive-supports-focus": [
         "warn",
-        {
-          tabbable: ["button", "checkbox", "link", "searchbox", "spinbutton", "switch", "textbox"]
-        }
+        { tabbable: ["button", "checkbox", "link", "searchbox", "spinbutton", "switch", "textbox"] }
       ],
-      "jsx-a11y/label-has-associated-control": [
-        "error",
-        {
-          assert: "either",
-          depth: 3
-        }
-      ],
+      "jsx-a11y/label-has-associated-control": ["error", { assert: "either", depth: 3 }],
       "jsx-a11y/lang": "error",
       "jsx-a11y/media-has-caption": "warn",
       "jsx-a11y/mouse-events-have-key-events": "error",
       "jsx-a11y/no-access-key": "warn",
       "jsx-a11y/no-autofocus": ["warn", { ignoreNonDOM: true }],
       "jsx-a11y/no-distracting-elements": ["warn", { elements: ["marquee", "blink"] }],
-      "jsx-a11y/no-interactive-element-to-noninteractive-role": ["error", { tr: ["none"] }],
+      "jsx-a11y/no-interactive-element-to-noninteractive-role": [
+        "error",
+        { tr: ["none"] }
+      ],
       "jsx-a11y/no-noninteractive-element-interactions": [
         "warn",
         {
-          handlers: ["onClick", "onError", "onMouseDown", "onMouseUp", "onKeyDown", "onKeyUp", "onKeyPress", "onFocus", "onBlur", "onChange", "onInput", "onSubmit"]
+          handlers: [
+            "onClick",
+            "onError",
+            "onMouseDown",
+            "onMouseUp",
+            "onKeyDown",
+            "onKeyUp",
+            "onKeyPress",
+            "onFocus",
+            "onBlur",
+            "onChange",
+            "onInput",
+            "onSubmit"
+          ]
         }
       ],
-      "jsx-a11y/no-noninteractive-tabindex": [
-        "error",
-        {
-          tags: [],
-          roles: ["tabpanel"]
-        }
-      ],
+      "jsx-a11y/no-noninteractive-tabindex": ["error", { tags: [], roles: ["tabpanel"] }],
       "jsx-a11y/no-onchange": "off",
       "jsx-a11y/no-redundant-roles": "warn",
       "jsx-a11y/no-static-element-interactions": [
         "warn",
-        {
-          allowExpressionValues: true,
-          handlers: ["onClick", "onKeyDown", "onKeyUp", "onKeyPress"]
-        }
+        { allowExpressionValues: true, handlers: ["onClick", "onKeyDown", "onKeyUp", "onKeyPress"] }
       ],
       "jsx-a11y/role-has-required-aria-props": "error",
       "jsx-a11y/role-supports-aria-props": "error",
       "jsx-a11y/scope": "error",
       "jsx-a11y/tabindex-no-positive": "error",
 
-      // ==== Import Plugin Rules ====
       "import/order": [
         "error",
         {
@@ -342,12 +309,7 @@ export default function createReactConfig(customOptions = {}) {
       "import/no-extraneous-dependencies": [
         "error",
         {
-          devDependencies: [
-            "**/*.test.{js,jsx,ts,tsx}",
-            "**/*.spec.{js,jsx,ts,tsx}",
-            "test/**",
-            "scripts/**"
-          ],
+          devDependencies: ["**/*.test.{js,jsx,ts,tsx}", "**/*.spec.{js,jsx,ts,tsx}", "test/**", "scripts/**"],
           optionalDependencies: false
         }
       ],
@@ -356,21 +318,13 @@ export default function createReactConfig(customOptions = {}) {
       "import/no-named-as-default": "error",
       "import/no-self-import": "error",
 
-      // ==== ESLint-comments Plugin Rules ====
       "eslint-comments/no-unused-disable": "error",
       "eslint-comments/no-duplicate-disable": "error",
       "eslint-comments/require-description": ["warn", { ignore: ["eslint-disable-next-line"] }],
       "eslint-comments/no-use": "off",
 
-      // ==== TypeScript-specific Rules via @typescript-eslint ====
-      "@typescript-eslint/no-unused-vars": [
-        "error",
-        { argsIgnorePattern: "^_", varsIgnorePattern: "^_" }
-      ],
-      "@typescript-eslint/explicit-function-return-type": [
-        "warn",
-        { allowExpressions: true, allowTypedFunctionExpressions: true }
-      ],
+      "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_", varsIgnorePattern: "^_" }],
+      "@typescript-eslint/explicit-function-return-type": ["warn", { allowExpressions: true, allowTypedFunctionExpressions: true }],
       "@typescript-eslint/no-non-null-assertion": "warn",
       "@typescript-eslint/no-explicit-any": "warn",
       "@typescript-eslint/consistent-type-imports": ["error", { prefer: "type-imports" }],
@@ -388,9 +342,8 @@ export default function createReactConfig(customOptions = {}) {
       "@typescript-eslint/restrict-plus-operands": "warn",
       "@typescript-eslint/strict-boolean-expressions": "warn",
 
-      // ==== Common Stylistic Rules ====
-      "semi": ["error", "always"],
-      "quotes": ["error", "double", { avoidEscape: true, allowTemplateLiterals: true }],
+      semi: ["error", "always"],
+      quotes: ["error", "double", { avoidEscape: true, allowTemplateLiterals: true }],
       "jsx-quotes": ["error", "prefer-double"],
       "no-trailing-spaces": "error",
       "eol-last": ["error", "always"],
@@ -398,10 +351,7 @@ export default function createReactConfig(customOptions = {}) {
       "array-bracket-spacing": ["error", "never"],
       "comma-dangle": ["error", "always-multiline"],
       "arrow-parens": ["error", "as-needed"],
-      "no-magic-numbers": [
-        "warn",
-        { ignore: [0, 1], ignoreArrayIndexes: true, enforceConst: true }
-      ],
+      "no-magic-numbers": ["warn", { ignore: [0, 1], ignoreArrayIndexes: true, enforceConst: true }],
       "no-var": "error",
       "prefer-const": "error",
       "prefer-template": "error",
@@ -409,18 +359,9 @@ export default function createReactConfig(customOptions = {}) {
       "no-param-reassign": ["error", { props: false }],
       "no-restricted-syntax": [
         "error",
-        {
-          selector: "ForInStatement",
-          message: "for..in loops are not allowed."
-        },
-        {
-          selector: "LabeledStatement",
-          message: "Labels are not allowed."
-        },
-        {
-          selector: "WithStatement",
-          message: "`with` is not allowed."
-        }
+        { selector: "ForInStatement", message: "for..in loops are not allowed." },
+        { selector: "LabeledStatement", message: "Labels are not allowed." },
+        { selector: "WithStatement", message: "`with` is not allowed." }
       ],
       "no-console": ["warn", { allow: ["warn", "error"] }],
       "no-debugger": "error",
@@ -429,13 +370,13 @@ export default function createReactConfig(customOptions = {}) {
       "no-empty": ["error", { allowEmptyCatch: true }],
       "no-fallthrough": "error",
       "no-underscore-dangle": "warn",
-      "curly": "error",
+      curly: "error",
       "brace-style": ["error", "1tbs"],
       "default-case": "warn",
       "dot-notation": "error",
-      "eqeqeq": ["error", "always"],
+      eqeqeq: ["error", "always"],
       "max-len": ["warn", { code: 100, ignoreStrings: true, ignoreComments: true }],
-      "complexity": ["warn", 10],
+      complexity: ["warn", 10],
       "max-depth": ["warn", 4],
       "max-params": ["warn", 3],
       "max-statements": ["warn", 10],
@@ -445,29 +386,12 @@ export default function createReactConfig(customOptions = {}) {
       "no-return-assign": "error",
       "no-sequences": "error",
       "no-throw-literal": "error",
-      "prefer-arrow-callback": [
-        "error",
-        { allowNamedFunctions: false, allowUnboundThis: true }
-      ],
+      "prefer-arrow-callback": ["error", { allowNamedFunctions: false, allowUnboundThis: true }],
       "wrap-iife": ["error", "inside"],
 
-      // ==== Jest/Testing (if used) ====
-      // "jest/no-disabled-tests": "warn",
-      // "jest/no-focused-tests": "error",
-      // "jest/no-identical-title": "error",
-      // "jest/prefer-to-have-length": "warn",
-      // "jest/valid-expect": "error",
-
-      // ==== Security-related (optional if eslint-plugin-security installed) ====
-      // "security/detect-object-injection": "warn",
-      // "security/detect-non-literal-regexp": "warn",
-      // "security/detect-eval-with-expression": "error",
-
-      // ==== React-specific overrides from extraRules ====
       ...opts.extraRules
     }
   };
 
-  // 7) Combine everything: [ ignorePatterns, baseFiles, reactSection ]
   return [...baseConfigArray, reactSection];
 }

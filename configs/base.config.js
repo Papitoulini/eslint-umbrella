@@ -1,43 +1,14 @@
 // eslint-config-custom/base.config.js
 
-/**
- * Factory: createBaseConfig(customOptions)
- *
- * A highly configurable base ESLint flat-config for any JS/TS project.
- *
- * ===============
- * Default Options:
- * ===============
- *  • enableGoogle           (boolean) – include "eslint-config-google"
- *  • enableAirbnbBase       (boolean) – include "eslint-config-airbnb-base"
- *  • enableStandard         (boolean) – include "eslint-config-standard"
- *  • enableImport           (boolean) – include "plugin:import/recommended" + "plugin:import/typescript"
- *  • enableESLintComments   (boolean) – include "plugin:eslint-comments/recommended"
- *  • enablePrettier         (boolean) – include "plugin:prettier/recommended"
- *
- *  • ignorePatterns         (string[]) – globs to ignore (default: node_modules, dist, build, .next, out, coverage)
- *  • env                    (object)   – environments (node, browser, es2021)
- *  • parserOptions          (object)   – ecmaVersion, sourceType, ecmaFeatures
- *  • extraRules             (object)   – override or add rules
- *
- * ===============
- * Usage:
- * ===============
- * import createBaseConfig from "eslint-config-custom/base.config.js";
- *
- * export default [
- *   ...createBaseConfig({
- *     enableGoogle: false,
- *     extraRules: {
- *       "no-console": "warn",
- *       "no-unused-vars": ["error", { argsIgnorePattern: "^_" }]
- *     }
- *   })
- * ];
- */
-
 import path from "path";
 import { FlatCompat } from "@eslint/eslintrc";
+import importPlugin from "eslint-plugin-import";
+import eslintCommentsPlugin from "eslint-plugin-eslint-comments";
+import prettierPlugin from "eslint-plugin-prettier";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname  = path.dirname(__filename);
 
 const defaultOptions = {
   enableGoogle: true,
@@ -83,8 +54,7 @@ export default function createBaseConfig(customOptions = {}) {
     enableStandard: customOptions.enableStandard ?? defaultOptions.enableStandard,
     enableImport: customOptions.enableImport ?? defaultOptions.enableImport,
     enableESLintComments:
-      customOptions.enableESLintComments ??
-      defaultOptions.enableESLintComments,
+      customOptions.enableESLintComments ?? defaultOptions.enableESLintComments,
     enablePrettier: customOptions.enablePrettier ?? defaultOptions.enablePrettier,
     ignorePatterns: Array.isArray(customOptions.ignorePatterns)
       ? customOptions.ignorePatterns
@@ -104,31 +74,23 @@ export default function createBaseConfig(customOptions = {}) {
   };
 
   const compat = new FlatCompat({
-    baseDirectory: path.resolve(new URL(import.meta.url).pathname, ".")
-  });
-
-  const extendsList = [
-    "eslint:recommended",
-    "plugin:@typescript-eslint/recommended"
-  ];
-  if (opts.enableGoogle) extendsList.push("google");
+      baseDirectory: __dirname,
+      recommendedConfig: "eslint:recommended"
+    });
+    const extendsList = [
+      "plugin:@typescript-eslint/recommended"
+    ];
   if (opts.enableAirbnbBase) extendsList.push("airbnb-base");
   if (opts.enableStandard) extendsList.push("standard");
   if (opts.enableImport) {
     extendsList.push("plugin:import/recommended");
     extendsList.push("plugin:import/typescript");
   }
-  if (opts.enableESLintComments) {
-    extendsList.push("plugin:eslint-comments/recommended");
-  }
-  if (opts.enablePrettier) {
-    extendsList.push("plugin:prettier/recommended");
-  }
+  if (opts.enableESLintComments) extendsList.push("plugin:eslint-comments/recommended");
+  if (opts.enablePrettier) extendsList.push("plugin:prettier/recommended");
 
   return [
-    {
-      ignores: opts.ignorePatterns
-    },
+    { ignores: opts.ignorePatterns },
     {
       files: ["**/*.{js,jsx,ts,tsx}"],
       env: opts.env,
@@ -136,25 +98,16 @@ export default function createBaseConfig(customOptions = {}) {
         parser: "@typescript-eslint/parser",
         parserOptions: opts.parserOptions,
         plugins: {
-          "@typescript-eslint": require("@typescript-eslint/eslint-plugin"),
-          ...(opts.enableImport
-            ? { import: require("eslint-plugin-import") }
-            : {}),
-          ...(opts.enableESLintComments
-            ? { "eslint-comments": require("eslint-plugin-eslint-comments") }
-            : {}),
-          ...(opts.enablePrettier
-            ? { prettier: require("eslint-plugin-prettier") }
-            : {})
+          ...(opts.enableImport ? { import: importPlugin } : {}),
+          ...(opts.enableESLintComments ? { "eslint-comments": eslintCommentsPlugin } : {}),
+          ...(opts.enablePrettier ? { prettier: prettierPlugin } : {})
         },
         settings: {
           "import/parsers": {
             "@typescript-eslint/parser": [".ts", ".tsx"]
           },
           "import/resolver": {
-            typescript: {
-              alwaysTryTypes: true
-            }
+            typescript: { alwaysTryTypes: true }
           }
         }
       },
@@ -164,12 +117,7 @@ export default function createBaseConfig(customOptions = {}) {
         "import/order": [
           "error",
           {
-            groups: [
-              "builtin",
-              "external",
-              "internal",
-              ["parent", "sibling", "index"]
-            ],
+            groups: ["builtin", "external", "internal", ["parent", "sibling", "index"]],
             "newlines-between": "always",
             alphabetize: { order: "asc", caseInsensitive: true }
           }
@@ -182,31 +130,19 @@ export default function createBaseConfig(customOptions = {}) {
         "prefer-const": "error",
         "arrow-body-style": ["error", "as-needed"],
         "no-var": "error",
-        "prefer-arrow-callback": [
-          "error",
-          { allowNamedFunctions: false, allowUnboundThis: true }
-        ],
+        "prefer-arrow-callback": ["error", { allowNamedFunctions: false, allowUnboundThis: true }],
         "no-duplicate-imports": "error",
         "no-param-reassign": ["error", { props: false }],
         "no-restricted-syntax": [
           "error",
-          {
-            selector: "ForInStatement",
-            message: "for..in loops are not allowed."
-          },
-          {
-            selector: "LabeledStatement",
-            message: "Labels are not allowed."
-          },
-          {
-            selector: "WithStatement",
-            message: "`with` is not allowed."
-          }
+          { selector: "ForInStatement", message: "for..in loops are not allowed." },
+          { selector: "LabeledStatement", message: "Labels are not allowed." },
+          { selector: "WithStatement", message: "`with` is not allowed." }
         ],
         "no-lonely-if": "error",
         "no-else-return": "error",
-        "eqeqeq": ["error", "always"],
-        "curly": "error",
+        eqeqeq: ["error", "always"],
+        curly: "error",
         "brace-style": ["error", "1tbs"],
         "block-scoped-var": "error",
         "consistent-return": "error",
@@ -236,11 +172,11 @@ export default function createBaseConfig(customOptions = {}) {
         "no-useless-concat": "error",
         "no-useless-escape": "error",
         "no-useless-return": "error",
-        "radix": "error",
+        radix: "error",
         "require-await": "error",
         "wrap-iife": ["error", "inside"],
-        "yoda": ["error", "never"],
-        "complexity": ["warn", 10],
+        yoda: ["error", "never"],
+        complexity: ["warn", 10],
         "max-depth": ["warn", 4],
         "max-lines": ["warn", { max: 300, skipBlankLines: true, skipComments: true }],
         "max-params": ["warn", 3],

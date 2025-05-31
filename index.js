@@ -1,9 +1,9 @@
 // eslint-config-custom/index.js
 
-import createBaseConfig from "./base.config.js";
-import createReactConfig from "./react.config.js";
-import createNextConfig from "./next.config.js";
-import createNodeConfig from "./node.config.js";
+import createBaseConfig from "./configs/base.config.js";
+import createReactConfig from "./configs/react.config.js";
+import createNextConfig from "./configs/next.config.js";
+import createNodeConfig from "./configs/node.config.js";
 
 // 1) Export factory functions so that advanced users can pass options:
 export {
