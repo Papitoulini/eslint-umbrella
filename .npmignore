@@ -1,0 +1,36 @@
+# Exclude dependencies—npm will install node_modules from package.json
+node_modules/
+
+# Ignore GitHub metadata and CI workflows
+.github/
+
+# Ignore local config and log files
+.gitignore
+npm-debug.log*
+yarn-debug.log*
+*.log
+
+# Ignore editor folders
+.vscode/
+.idea/
+
+# Ignore environment files (do not publish secrets)
+.env
+.env.local
+.env.*.local
+
+# Ignore build and coverage output
+dist/
+build/
+coverage/
+.eslintcache
+
+# Ignore tests, examples, and docs
+test/
+tests/
+__tests__/
+examples/
+docs/
+
+# Ignore misc
+*.md
