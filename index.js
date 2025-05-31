@@ -1,35 +1,27 @@
-// eslint-config-custom/index.js
+// configs/index.js
 
-import createBaseConfig from "./configs/base.config.js";
-import createReactConfig from "./configs/react.config.js";
-import createNextConfig from "./configs/next.config.js";
-import createNodeConfig from "./configs/node.config.js";
+import createDefaultConfig, { configWithJsx } from "./configs/default.js";
+import nextConfig from "./configs/next.js";
+import nodeConfig from "./configs/node.js";
+import reactConfig from "./configs/react.js";
 
-// 1) Export factory functions so that advanced users can pass options:
+/**
+ * Factory functions for custom usage:
+ *   • createDefaultConfig(options)  – returns an array of base ESLint configs
+ *   • configWithJsx                 – equivalent to createDefaultConfig({ jsx: true, a11y: true })
+ *
+ * Ready-made, no-options config arrays:
+ *   • nodeConfig    – the “node” variant (base + Node override)
+ *   • reactConfig   – the “react” variant (base(JSX+a11y) + React plugin)
+ *   • nextConfig    – the “next” variant (base(JSX+a11y) + Next.js plugin)
+ */
 export {
-  createBaseConfig,
-  createReactConfig,
-  createNextConfig,
-  createNodeConfig
+	configWithJsx,
+	createDefaultConfig,
+	nextConfig,
+	nodeConfig,
+	reactConfig
 };
 
-// 2) Export “default” static configs (no-options):
-//    • Base default: createBaseConfig()
-//    • React default: createReactConfig()
-//    • Next default: createNextConfig()
-//    • Node default: createNodeConfig()
-const baseDefault = createBaseConfig();
-const reactDefault = createReactConfig();
-const nextDefault = createNextConfig();
-const nodeDefault = createNodeConfig();
-
-// 3) For backward-compatibility / quick imports, we’ll export named defaults:
-export { 
-  baseDefault as base, 
-  reactDefault as react, 
-  nextDefault as next, 
-  nodeDefault as node 
-};
-
-// 4) Finally, make the overall “default export” the base config itself:
-export default baseDefault;
+// (Optional) If you want a default export—export the base factory function:
+export default createDefaultConfig;
