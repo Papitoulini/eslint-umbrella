@@ -8,38 +8,28 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
-      packages: write
-      id-token: write
+      contents: read       # to check out code
+      packages: write      # to publish to npm
+      id-token: write      # (if you need OIDC, can remove otherwise)
+
     steps:
-      - name: ⬇️ Checkout repo
+      - name: ⬇️ Checkout repository at tag
         uses: actions/checkout@v4
+        with:
+          # fetch-depth: 0 ensures we get the full history, but you can also fetch the specific tag
+          fetch-depth: 0
 
-      - name: ⎔ Setup pnpm
-        uses: pnpm/action-setup@v4
-
-      - name: ⎔ Setup node
+      - name: ⎔ Setup Node.js (public npm)
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: "18"
           registry-url: "https://registry.npmjs.org"
+          always-auth: true
 
-      - name: 🚀 Release to npm
-        run: pnpm publish --no-git-checks
+      - name: 📥 Install dependencies
+        run: npm ci
+
+      - name: 🚀 Publish to npm
+        run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-      - name: ⎔ Setup node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          registry-url: "https://npm.pkg.github.com"
-          scope: "@iamnapo"
-
-      - name: 🚀 Publish to npm registry
-        run: npm publish
-
-      - name: 🚀 Release to GitHub
-        run: pnpm publish --no-git-checks
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
