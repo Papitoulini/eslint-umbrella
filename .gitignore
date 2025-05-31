@@ -30,6 +30,3 @@ coverage/
 *.ntvs*
 *.njsproj
 *.sln
-
-# GitHub Actions
-.github/
