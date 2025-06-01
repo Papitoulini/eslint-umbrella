@@ -1,6 +1,6 @@
 {
   "name": "@papitoulini/eslint-umbrella",
-  "version": "0.1.0",
+  "version": "0.1.4",
   "description": "A highly configurable “umbrella” ESLint base (Node, React, Next)",
   "type": "module",
   "main": "./configs/default.js",
