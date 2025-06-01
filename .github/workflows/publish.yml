@@ -29,10 +29,15 @@ jobs:
         run: |
           echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
 
-      - name: 🔍 Verify npm authentication
+      - name: 🔍 Echo token prefix to verify
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
-          npm whoami
-        # If this step fails (invalid token), the job stops here.
+          # Show only the first 4 characters of the token (GitHub will mask the rest)
+          echo "NPM token prefix: ${NPM_TOKEN:0:4}"
+
+      - name: 🔍 Verify npm authentication
+        run: npm whoami
 
       - name: 🚀 Publish to npm
         run: npm publish
