@@ -1,3 +1,5 @@
+# .github/workflows/publish.yml
+
 name: Publish
 
 on:
@@ -11,11 +13,19 @@ jobs:
       contents: read
       packages: write
 
+    env:
+      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
     steps:
       - name: ⬇️ Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      - name: 🔍 Echo token prefix to verify
+        run: |
+          # Prints only the first 4 chars; GitHub will mask the rest
+          echo "NPM token prefix: ${NPM_TOKEN:0:4}"
 
       - name: ⎔ Set up Node.js (with npm auth)
         uses: actions/setup-node@v4
@@ -24,19 +34,8 @@ jobs:
           registry-url: "https://registry.npmjs.org"
           always-auth: true
 
-      - name: 🔍 Echo token prefix to verify
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: |
-          # Prints only first 4 characters; the rest remains masked
-          echo "NPM token prefix: ${NPM_TOKEN:0:4}"
-
-      - name: 🗝 Write NPM token to ~/.npmrc
-        run: |
-          echo "registry=https://registry.npmjs.org" > ~/.npmrc
-          echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" >> ~/.npmrc
-
       - name: 🔍 Verify npm authentication
         run: npm whoami
+
       - name: 🚀 Publish to npm
         run: npm publish
