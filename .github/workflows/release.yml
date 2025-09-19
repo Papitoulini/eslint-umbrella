@@ -29,17 +29,36 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
           registry-url: https://registry.npmjs.org
+          always-auth: true                # <-- force auth on every npm request
+
       - run: npm ci --ignore-scripts --prefer-offline
 
+      # Ensure the runner has an npmrc that uses your token (belt & suspenders)
+      - name: Configure npm auth
+        run: |
+          echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
+          echo "@eslint-umbrella:registry=https://registry.npmjs.org/" >> ~/.npmrc
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      # Optional probe: confirm auth before publish
+      - name: npm whoami & ping
+        run: |
+          npm whoami || true
+          npm ping
+
+      # Use Changesets to version + publish (PR or no-PR, your choice)
       - uses: changesets/action@v1
         with:
           version: npm run version-packages
           publish: npm run release
+          createGithubReleases: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
