@@ -6,3 +6,4 @@ export { default as nest } from "./nest.js";
 export { default as reactNative } from "./react-native.js";
 export { default as reactPdf } from "./react-pdf.js";
 export { default as test } from "./test.js";
+export { default as baseTypeChecked } from "./base-typechecked.js";
