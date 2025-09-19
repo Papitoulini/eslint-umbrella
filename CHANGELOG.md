@@ -1,5 +1,11 @@
 # @eslint-umbrella/presets
 
+## 1.1.2
+
+### Patch Changes
+
+- 22a0301: something
+
 ## 1.1.1
 
 ### Patch Changes
