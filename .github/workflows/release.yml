@@ -3,9 +3,11 @@ name: release
 on:
   push:
     branches: [maestro]
+  workflow_dispatch: {}
 
 permissions:
   contents: write
+  pull-requests: write 
 
 jobs:
   lint:
