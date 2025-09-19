@@ -1,5 +1,6 @@
-import react from "./react.js";
 import rn from "eslint-plugin-react-native";
+
+import react from "./react.js";
 export default function reactNative() {
   return [
     ...react(),

@@ -1,5 +1,6 @@
-import react from "./react.js";
 import nextPlugin from "@next/eslint-plugin-next";
+
+import react from "./react.js";
 export default function next() {
   return [
     ...react(),

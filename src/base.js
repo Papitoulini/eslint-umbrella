@@ -1,14 +1,14 @@
 import js from "@eslint/js";
-import * as tseslint from "typescript-eslint";
 import importPlugin from "eslint-plugin-import";
 import unused from "eslint-plugin-unused-imports";
+import * as tseslint from "typescript-eslint";
 
 /** @returns {import('eslint').Linter.FlatConfig[]} */
 export default function base() {
   return [
     { ignores: ["dist", "build", "coverage", "**/*.min.*"] },
     js.configs.recommended,
-    ...tseslint.configs.recommendedTypeChecked,
+    ...tseslint.configs.recommended,
     {
       plugins: { import: importPlugin, "unused-imports": unused },
       rules: {
@@ -21,7 +21,6 @@ export default function base() {
       languageOptions: {
         ecmaVersion: "latest",
         sourceType: "module",
-        parserOptions: { project: ["tsconfig.json"] }
       }
     }
   ];

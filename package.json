@@ -1,8 +1,9 @@
 {
-  "name": "@eslint-umbrella/eslint-config",
+  "name": "@eslint-umbrella/presets",
   "version": "1.0.0",
   "type": "module",
   "description": "Pinned ESLint flat config presets for React, Next.js, Express, NestJS, React Native, React-PDF, and base/test",
+  "publishConfig": { "access": "public" },
   "exports": {
     ".": "./src/index.js",
     "./base": "./src/base.js",
@@ -12,21 +13,34 @@
     "./nest": "./src/nest.js",
     "./react-native": "./src/react-native.js",
     "./react-pdf": "./src/react-pdf.js",
-    "./test": "./src/test.js"
+    "./test": "./src/test.js",
+    "./base-typechecked": "./src/base-typechecked.js"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "lint:ci": "eslint . --max-warnings=0",
+
+    "changeset": "changeset",
+    "version-packages": "changeset version && npm i --package-lock-only --ignore-scripts",
+    "release": "changeset publish"
   },
   "license": "MIT",
   "dependencies": {
-    "eslint": "9.11.0",
     "@eslint/js": "9.11.0",
-    "typescript": "5.6.3",
-    "typescript-eslint": "8.8.1",
+    "@next/eslint-plugin-next": "14.2.14",
+    "eslint": "9.11.0",
     "eslint-plugin-import": "2.31.0",
-    "eslint-plugin-unused-imports": "4.1.4",
+    "eslint-plugin-promise": "6.5.1",
     "eslint-plugin-react-hooks": "5.1.0",
     "eslint-plugin-react-refresh": "0.4.12",
-    "@next/eslint-plugin-next": "14.2.14",
     "eslint-plugin-security": "3.0.1",
-    "eslint-plugin-promise": "6.5.1",
-    "eslint-plugin-react-native": "4.1.0"
+    "eslint-plugin-unused-imports": "4.1.4",
+    "typescript": "5.6.3",
+    "typescript-eslint": "8.8.1"
+  },
+  "devDependencies": {
+    "@changesets/cli": "^2.29.7",
+    "eslint-plugin-react-native": "^5.0.0"
   }
 }

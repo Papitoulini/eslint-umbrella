@@ -1,5 +1,6 @@
-import base from "./base.js";
 import reactHooks from "eslint-plugin-react-hooks";
+
+import base from "./base.js";
 export default function reactPdf() {
   return [
     ...base(),

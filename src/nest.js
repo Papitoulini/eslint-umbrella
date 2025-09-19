@@ -1,5 +1,6 @@
-import base from "./base.js";
 import promise from "eslint-plugin-promise";
+
+import base from "./base.js";
 export default function nest() {
   return [
     ...base(),

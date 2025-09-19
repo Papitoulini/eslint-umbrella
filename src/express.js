@@ -1,6 +1,7 @@
-import base from "./base.js";
-import security from "eslint-plugin-security";
 import promise from "eslint-plugin-promise";
+import security from "eslint-plugin-security";
+
+import base from "./base.js";
 export default function express() {
   return [
     ...base(),
