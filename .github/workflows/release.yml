@@ -5,7 +5,7 @@ on:
     branches: [maestro]
 
 permissions:
-  contents: write   # needed so Changesets can open/update the Version PR
+  contents: write
 
 jobs:
   lint:
@@ -22,8 +22,6 @@ jobs:
   release:
     needs: lint
     runs-on: ubuntu-latest
-    # If your NPM_TOKEN is saved as an **environment secret** under the "maestro" environment,
-    # keep the next line. If you move NPM_TOKEN to a *repository secret*, delete this line.
     environment: maestro
     steps:
       - uses: actions/checkout@v4
@@ -42,5 +40,4 @@ jobs:
           publish: npm run release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # Works whether NPM_TOKEN is an environment secret (with environment: maestro) or a repo secret
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
