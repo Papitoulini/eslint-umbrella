@@ -1,52 +1,55 @@
+// src/base.js
 import js from "@eslint/js";
 import stylistic from "@stylistic/eslint-plugin";
 import importPlugin from "eslint-plugin-import";
 import promise from "eslint-plugin-promise";
 import unused from "eslint-plugin-unused-imports";
-import globals from "globals"; 
-import tseslint from "typescript-eslint"; // we just use the config composer
+import globals from "globals";
+import tseslint from "typescript-eslint"; // just the config composer
 
 /** @returns {import('eslint').Linter.FlatConfig[]} */
 export default function base() {
 	return tseslint.config(
-		// 0) ignores
-		{ ignores: [
-		// package managers
-			"node_modules",
-			".pnpm-store", ".turbo", ".npm", ".yarn", ".yarn/*", "pnpm-lock.yaml", "yarn.lock",
+		/* 0) ignores */
+		{
+			ignores: [
+				// package managers
+				"node_modules",
+				".pnpm-store", ".turbo", ".npm", ".yarn", ".yarn/*", "pnpm-lock.yaml", "yarn.lock",
 
-			// builds / caches / coverage
-			"dist", "build", "coverage", ".cache", ".eslintcache",
+				// builds / caches / coverage
+				"dist", "build", "coverage", ".cache", ".eslintcache",
 
-			// env / local
-			".env", ".env.*", "*.local.*",
+				// env / local
+				".env", ".env.*", "*.local.*",
 
-			// logs & misc
-			"*.log", "logs", "tmp", "temp",
+				// logs & misc
+				"*.log", "logs", "tmp", "temp",
 
-			// assets & generated
-			"**/*.min.*", "**/*.map", "**/*.snap", "public", "static", "storybook-static",
+				// assets & generated
+				"**/*.min.*", "**/*.map", "**/*.snap", "public", "static", "storybook-static",
 
-			// tests/artifacts
-			"cypress/videos", "cypress/screenshots", "playwright-report", "test-results",
+				// tests/artifacts
+				"cypress/videos", "cypress/screenshots", "playwright-report", "test-results",
 
-			// monorepo tool outputs
-			".nx", ".rush", ".changeset/*-changeset/*.md", // keep `.changeset/*.md` itself included
+				// monorepo tool outputs
+				".nx", ".rush", ".changeset/*-changeset/*.md",
 
-			// IDE
-			".idea", ".vscode/*.tsbuildinfo"
-		] },
+				// IDE
+				".idea", ".vscode/*.tsbuildinfo",
+			],
+		},
 
-		// 1) core JS recommendations
+		/* 1) core JS recommendations */
 		js.configs.recommended,
 
-		// 2) extra best practices + plugins
+		/* 2) extras */
 		{
 			plugins: {
 				import: importPlugin,
 				"unused-imports": unused,
 				promise,
-				"@stylistic": stylistic
+				"@stylistic": stylistic,
 			},
 
 			languageOptions: {
@@ -54,9 +57,10 @@ export default function base() {
 				sourceType: "module",
 				globals: {
 					...globals.es2024,
-					...globals.node
+					...globals.node,
 				},
 			},
+
 			rules: {
 				/* ---------- General safety / clarity ---------- */
 				"no-console": ["warn", { allow: ["warn", "error"] }],
@@ -67,49 +71,44 @@ export default function base() {
 				"object-shorthand": ["error", "always"],
 				"prefer-template": "warn",
 				"no-implicit-coercion": "warn",
-				curly: ["error", "all"],
+				curly: ["error", "multi-line", "consistent"],
 				"no-use-before-define": ["error", { functions: false, classes: true, variables: false }],
-				"@stylistic/max-len": ["warn", {
-					code: 120,                 // 👈 choose your limit
-					tabWidth: 4,               // tabs count as 4 (match your indent config)
-					ignoreUrls: true,          // don’t flag long URLs
-					ignoreStrings: true,       // allow long strings
-					ignoreTemplateLiterals: true,
-					ignoreComments: true,      // allow long comments (JSDoc, etc.)
-				}],
-				/* ---------- Import hygiene ---------- */
-				"import/order": [
-					"warn",
-					{
-						groups: [
-							"builtin",
-							"external",
-							"internal",
-							["parent", "sibling", "index"],
-							"type",
-							"object",
-							"unknown"
-						],
-						alphabetize: { order: "asc", caseInsensitive: true },
-						"newlines-between": "always"
-					}
-				],
-				// Enable if you add a resolver; otherwise can be noisy:
-				// "import/no-unresolved": "off",
 
-				"no-unused-vars": "off",
+				"@stylistic/max-len": ["warn", {
+					code: 120,
+					tabWidth: 4,
+					ignoreUrls: true,
+					ignoreStrings: true,
+					ignoreTemplateLiterals: true,
+					ignoreComments: true,
+				}],
+
+				/* ---------- Import hygiene ---------- */
+				"import/order": ["warn", {
+					groups: [
+						"builtin",
+						"external",
+						"internal",
+						["parent", "sibling", "index"],
+						"type",
+						"object",
+						"unknown",
+					],
+					alphabetize: { order: "asc", caseInsensitive: true },
+					"newlines-between": "always",
+				}],
+				// "import/no-unresolved": "off", // enable if you add a resolver
+
 				/* ---------- Unused code ---------- */
+				"no-unused-vars": "off",
 				"unused-imports/no-unused-imports": "error",
-				"unused-imports/no-unused-vars": [
-					"error",
-					{
-						vars: "all",
-						varsIgnorePattern: "^_",
-						args: "after-used",
-						argsIgnorePattern: "^_",
-						ignoreRestSiblings: true
-					}
-				],
+				"unused-imports/no-unused-vars": ["error", {
+					vars: "all",
+					varsIgnorePattern: "^_",
+					args: "after-used",
+					argsIgnorePattern: "^_",
+					ignoreRestSiblings: true,
+				}],
 
 				/* ---------- Promise discipline ---------- */
 				"promise/no-return-wrap": "error",
@@ -119,28 +118,26 @@ export default function base() {
 				"promise/no-callback-in-promise": "warn",
 				"promise/valid-params": "error",
 
-				/* ---------- Stylistic: tabs, smart alignment ---------- */
-				"@stylistic/indent": [
-					"error",
-					"tab",
-					{
-						SwitchCase: 1,
-						VariableDeclarator: 1,
-						outerIIFEBody: 1,
-						MemberExpression: 1,
-						FunctionDeclaration: { body: 1, parameters: 1 },
-						FunctionExpression: { body: 1, parameters: 1 },
-						CallExpression: { arguments: 1 },
-						ArrayExpression: 1,
-						ObjectExpression: 1,
-						ImportDeclaration: 1,
-						flatTernaryExpressions: false,
-						ignoreComments: false
-					}
-				],
+				/* ---------- Stylistic: tabs, no JSX conflict ---------- */
+				"@stylistic/indent": ["error", "tab", {
+					SwitchCase: 1,
+					VariableDeclarator: 1,
+					outerIIFEBody: 1,
+					MemberExpression: 1,
+					FunctionDeclaration: { body: 1, parameters: 1 },
+					FunctionExpression: { body: 1, parameters: 1 },
+					CallExpression: { arguments: 1 },
+					ArrayExpression: 1,
+					ObjectExpression: 1,
+					ImportDeclaration: 1,
+					flatTernaryExpressions: false,
+					ignoreComments: false,
+					// avoid conflict with JSX rules handled in the react preset
+					ignoredNodes: ["JSXElement", "JSXElement *"],
+				}],
 				"@stylistic/no-mixed-spaces-and-tabs": ["warn", "smart-tabs"],
-				"no-tabs": "off" // allow tabs explicitly
-			}
+				"no-tabs": "off",
+			},
 		}
 	);
 }
