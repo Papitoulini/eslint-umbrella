@@ -3,3 +3,5 @@ dist/
 coverage/
 
 README.DEV.md
+
+eslint-umbrella-presets*
