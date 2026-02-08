@@ -7,6 +7,14 @@
   "publishConfig": {
     "access": "public"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Papitoulini/eslint-umbrella.git"
+  },
+  "homepage": "https://github.com/Papitoulini/eslint-umbrella#readme",
+  "bugs": {
+    "url": "https://github.com/Papitoulini/eslint-umbrella/issues"
+  },
   "sideEffects": false,
   "exports": {
     ".": "./src/index.js",

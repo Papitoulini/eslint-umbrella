@@ -187,6 +187,14 @@ export default [
 
 > Do **not** delete pending `.changeset/*.md`; the version step consumes them automatically.
 
+
+## 🔁 Publish flow (develop → master)
+
+1. Ensure `develop` is green and up to date.
+2. Open a PR from `develop` into `master`.
+3. Run the release steps above in the PR branch (or let CI handle it).
+4. Merge the PR after approvals; `master` is the published source of truth.
+
 ---
 
 ## 🤝 Contributing
