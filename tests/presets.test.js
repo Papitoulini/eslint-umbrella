@@ -108,7 +108,11 @@ test("react-pdf preset lints a hook-based component", async () => {
 test("base type-checked preset lints TS", async () => {
 	await lintText(
 		withTsconfigRoot(baseTypeChecked([tsconfigPath]), fixturesDir),
-		"export const value = 1;",
+		[
+			"export type Id = string;",
+			"export interface User { id: Id }",
+			"export const user: User = { id: '1' };"
+		].join("\n"),
 		{ filename: "typechecked.ts", cwd: fixturesDir }
 	);
 });
@@ -116,7 +120,11 @@ test("base type-checked preset lints TS", async () => {
 test("nest type-checked preset lints TS", async () => {
 	await lintText(
 		withTsconfigRoot(nestTypeChecked([tsconfigPath]), fixturesDir),
-		"export class ExampleService { getValue(): number { return 1; } }",
+		[
+			"export class ExampleService {",
+			"  getValue(): number { return 1; }",
+			"}"
+		].join("\n"),
 		{ filename: "nest.ts", cwd: fixturesDir }
 	);
 });
