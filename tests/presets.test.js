@@ -1,9 +1,10 @@
 import assert from "node:assert/strict";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 import test from "node:test";
+import { fileURLToPath } from "node:url";
 
 import { ESLint } from "eslint";
+
 import {
 	base,
 	baseTypeChecked,
