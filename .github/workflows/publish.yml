@@ -6,8 +6,9 @@ on:
   workflow_dispatch: {}
 
 permissions:
-  contents: write
-  pull-requests: write 
+  id-token: write          # REQUIRED for npm OIDC
+  contents: write          # for Changesets PR/releases
+  pull-requests: write
 
 jobs:
   lint:
@@ -18,13 +19,16 @@ jobs:
         with:
           node-version: 20
           cache: npm
-      - run: npm ci --ignore-scripts --prefer-offline
+      - run: npm ci
       - run: npm run lint:ci
+      - run: npm test
 
   release:
     needs: lint
     runs-on: ubuntu-latest
-    environment: master
+    # Only set this if you also set the SAME environment name in npm Trusted Publisher config
+    # environment: master
+
     steps:
       - uses: actions/checkout@v4
         with:
@@ -35,20 +39,11 @@ jobs:
           node-version: 20
           cache: npm
           registry-url: https://registry.npmjs.org
-          always-auth: true
 
-      - run: npm ci --ignore-scripts --prefer-offline
+      # Trusted publishing requires npm >= 11.5.1
+      - run: npm i -g npm@^11.5.1
 
-      - name: Configure npm auth (userconfig)
-        run: |
-          echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > "$NPM_CONFIG_USERCONFIG"
-          echo "@eslint-umbrella:registry=https://registry.npmjs.org/" >> "$NPM_CONFIG_USERCONFIG"
-          echo "Configured auth in $NPM_CONFIG_USERCONFIG"
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-      - name: npm ping
-        run: npm ping
+      - run: npm ci
 
       - uses: changesets/action@v1
         with:
@@ -57,5 +52,4 @@ jobs:
           createGithubReleases: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_CONFIG_PROVENANCE: true
