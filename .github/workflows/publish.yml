@@ -6,8 +6,8 @@ on:
   workflow_dispatch: {}
 
 permissions:
-  id-token: write          # REQUIRED for npm OIDC
-  contents: write          # for Changesets PR/releases
+  id-token: write
+  contents: write
   pull-requests: write
 
 jobs:
@@ -26,9 +26,6 @@ jobs:
   release:
     needs: lint
     runs-on: ubuntu-latest
-    # Only set this if you also set the SAME environment name in npm Trusted Publisher config
-    # environment: master
-
     steps:
       - uses: actions/checkout@v4
         with:
@@ -40,7 +37,6 @@ jobs:
           cache: npm
           registry-url: https://registry.npmjs.org
 
-      # Trusted publishing requires npm >= 11.5.1
       - run: npm i -g npm@^11.5.1
 
       - run: npm ci
