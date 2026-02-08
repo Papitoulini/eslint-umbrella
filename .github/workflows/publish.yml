@@ -2,7 +2,7 @@ name: release
 
 on:
   push:
-    branches: [maestro]
+    branches: [master]
   workflow_dispatch: {}
 
 permissions:
@@ -24,7 +24,7 @@ jobs:
   release:
     needs: lint
     runs-on: ubuntu-latest
-    environment: maestro
+    environment: master
     steps:
       - uses: actions/checkout@v4
         with:

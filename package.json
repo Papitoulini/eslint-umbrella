@@ -1,16 +1,13 @@
 {
   "name": "@eslint-umbrella/presets",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "type": "module",
   "description": "Batteries-included ESLint flat config presets for React, Next.js, Express, NestJS, React Native, React-PDF, and TypeScript",
   "license": "MIT",
-
   "publishConfig": {
     "access": "public"
   },
-
   "sideEffects": false,
-
   "exports": {
     ".": "./src/index.js",
     "./base": "./src/base.js",
@@ -22,7 +19,6 @@
     "./react-native": "./src/react-native.js",
     "./react-pdf": "./src/react-pdf.js"
   },
-
   "scripts": {
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
@@ -32,12 +28,10 @@
     "version-packages": "changeset version && npm i --package-lock-only --ignore-scripts",
     "release": "changeset publish"
   },
-
   "dependencies": {
     "@eslint/js": "^9.39.2",
     "@next/eslint-plugin-next": "14.2.14",
     "@stylistic/eslint-plugin": "^5.7.1",
-
     "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-promise": "^7.2.1",
     "eslint-plugin-react": "^7.37.5",
@@ -46,17 +40,13 @@
     "eslint-plugin-react-refresh": "^0.4.12",
     "eslint-plugin-security": "^3.0.1",
     "eslint-plugin-unused-imports": "^4.1.4",
-
     "globals": "^16.5.0",
-
     "typescript": "5.6.3",
     "typescript-eslint": "^8.8.1"
   },
-
   "peerDependencies": {
     "eslint": "^9.0.0"
   },
-
   "devDependencies": {
     "@changesets/cli": "^2.29.7",
     "eslint": "^9.39.2",
