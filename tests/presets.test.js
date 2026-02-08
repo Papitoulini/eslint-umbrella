@@ -122,7 +122,9 @@ test("nest type-checked preset lints TS", async () => {
 		withTsconfigRoot(nestTypeChecked([tsconfigPath]), fixturesDir),
 		[
 			"export class ExampleService {",
-			"  getValue(): number { return 1; }",
+			"\tgetValue(): number {",
+			"\t\treturn 1;",
+			"\t}",
 			"}"
 		].join("\n"),
 		{ filename: "nest.ts", cwd: fixturesDir }
