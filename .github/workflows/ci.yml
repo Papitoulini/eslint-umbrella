@@ -1,22 +1,44 @@
-name: ci
+name: CI
 
 on:
-  pull_request:
-    branches: [develop, maestro]
   push:
-    branches: [develop, maestro]
+    branches:
+      - "**"
+  pull_request:
+    branches:
+      - "**"
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
 
 jobs:
   lint:
+    name: Lint (Node ${{ matrix.node-version }})
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: [20, 22]
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: ${{ matrix.node-version }}
           cache: npm
-      - run: npm ci --ignore-scripts --prefer-offline
-      - run: npm run lint:ci
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run lint (CI)
+        run: npm run lint:ci
+
+      - name: Run tests
+        run: npm test

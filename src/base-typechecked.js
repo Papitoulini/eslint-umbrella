@@ -142,6 +142,14 @@ export default function baseTypeChecked(project = ["tsconfig.json"]) {
 					"error",
 					{ checksVoidReturn: { attributes: false } }
 				],
+				"@typescript-eslint/no-unused-expressions": [
+					"error",
+					{
+						allowShortCircuit: false,
+						allowTernary: false,
+						allowTaggedTemplates: false
+					}
+				],
 				"@typescript-eslint/no-unnecessary-condition": [
 					"warn",
 					{ allowConstantLoopConditions: true }

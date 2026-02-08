@@ -22,6 +22,7 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "lint:ci": "eslint . --max-warnings=0",
+    "test": "node --test",
     "changeset": "changeset",
     "version-packages": "changeset version && npm i --package-lock-only --ignore-scripts",
     "release": "changeset publish"
