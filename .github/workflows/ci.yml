@@ -35,6 +35,9 @@ jobs:
           cache: npm
 
       - name: Install dependencies
+        run: node -v
+        run: npm -v
+        run: npm config list
         run: npm ci
 
       - name: Run lint (CI)
